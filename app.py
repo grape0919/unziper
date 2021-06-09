@@ -66,7 +66,7 @@ class MainWindow(Frame):
         self.dirPath.set(filename)
 
         # self.dirPathedit.delete(0, END)
-        # self.dirPathedit.insert(0, filename)
+        # self.dirPathediii t.insert(0, filename)
 
         # self.dirPath.set(filename)
 
@@ -75,7 +75,10 @@ class MainWindow(Frame):
     def fileScan(self):
         path = self.dirPath.get()
         if self.dirPath.get():
-            print(path)
+            fileList = []
+            stop = False
+            while stop:
+                os.listdir(path)
 
         else :
             dlg = messagebox.showerror("실패", "폴더 경로를 먼저 선택해주세요.")         
