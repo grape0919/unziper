@@ -1,8 +1,10 @@
 from tkinter import *
-from tkinter.ttk import Frame
+from tkmacosx import Button
+from tkinter import Frame
 from tkinter import filedialog, messagebox
 import os
 
+DEFAULT_BGCOLOR = "white"
 class MainWindow(Frame):
 
     def __init__(self):
@@ -11,44 +13,41 @@ class MainWindow(Frame):
         self.initUI()
 
     def initUI(self):
-
         self.master.title('Unziper')
         self.pack(fill=BOTH, expand=1)
+        self.configure(bg=DEFAULT_BGCOLOR, highlightbackground=DEFAULT_BGCOLOR)
         self.centerWindow()
-
-        subFrame = Frame()
 
         self.dirPath = StringVar()
 
-        self.dirPathedit = Entry(subFrame, width=31, textvariable=self.dirPath)
-        self.dirPathedit.configure(state='disabled')
+        self.dirPathedit = Entry(self, width=31, textvariable=self.dirPath, highlightbackground=DEFAULT_BGCOLOR,readonlybackground='ghost white',state='readonly')
         self.dirPathedit.grid(row = 0, column=0, columnspan=2)
         
-        selectDir = Button(subFrame, text="폴더 선택", command=self.openDlg)
+        selectDir = Button(self, text="폴더 선택", command=self.openDlg, bd=0, highlightthickness=0, highlightbackground=DEFAULT_BGCOLOR)
         selectDir.grid(row = 0, column=2)
 
-        passwdLabel = Label(subFrame, text='password')
+        passwdLabel = Label(self, text='password',bg=DEFAULT_BGCOLOR)
         passwdLabel.grid(row = 1, column=0)
 
-        passwd = Entry(subFrame)
+        passwd = Entry(self, highlightbackground=DEFAULT_BGCOLOR, bg='ghost white')
         passwd.grid(row = 1, column=1)
 
         self.chNmParam = BooleanVar()
         self.chNmParam.set(False)
 
-        chNmOption = Checkbutton(subFrame,variable=self.chNmParam, text="이름 변경")
+        chNmOption = Checkbutton(self,variable=self.chNmParam, text="이름 변경",bg=DEFAULT_BGCOLOR)
         chNmOption.grid(row = 2, column=0)
 
-        unzipBtn = Button(subFrame, text="압축 풀기", command=self.unzip)
+        #0f4c81
+        unzipBtn = Button(self, text="압축 풀기", command=self.unzip, bg='#0f4c81', fg='white', bd=0, highlightthickness=0, highlightbackground=DEFAULT_BGCOLOR)
         unzipBtn.grid(row = 3, column=0, columnspan=3)
 
-        subFrame.pack()
-        subFrame.place(x = 10, y = 10)
+        self.place(x = 40, y = 20)
 
     def centerWindow(self):
 
-        w = 500
-        h = 300
+        w = 450
+        h = 180
 
         sw = self.master.winfo_screenwidth()
         sh = self.master.winfo_screenheight()
@@ -93,6 +92,7 @@ class MainWindow(Frame):
 def main():
     root = Tk()
     root.resizable(False, False)
+    root.configure(bg=DEFAULT_BGCOLOR, highlightbackground=DEFAULT_BGCOLOR)
     ex = MainWindow()
     root.mainloop()
 
