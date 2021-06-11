@@ -1,10 +1,13 @@
 from tkinter import *
-from tkmacosx import Button
+# from tkmacosx import Button
 from tkinter import Frame
 from tkinter import filedialog, messagebox
 import os
+import py7zr
+import shutil
 
 DEFAULT_BGCOLOR = "white"
+TEMP_DIR = os.path.join(os.getcwd(),'table')
 class MainWindow(Frame):
 
     def __init__(self):
@@ -15,21 +18,23 @@ class MainWindow(Frame):
     def initUI(self):
         self.master.title('Unziper')
         self.pack(fill=BOTH, expand=1)
-        self.configure(bg=DEFAULT_BGCOLOR, highlightbackground=DEFAULT_BGCOLOR)
+        self.configure(bg=DEFAULT_BGCOLOR)
         self.centerWindow()
 
         self.dirPath = StringVar()
 
-        self.dirPathedit = Entry(self, width=31, textvariable=self.dirPath, highlightbackground=DEFAULT_BGCOLOR,readonlybackground='ghost white',state='readonly')
+        self.dirPathedit = Entry(self, width=32, textvariable=self.dirPath,readonlybackground='ghost white',state='readonly')
         self.dirPathedit.grid(row = 0, column=0, columnspan=2)
         
-        selectDir = Button(self, text="폴더 선택", command=self.openDlg, bd=0, highlightthickness=0, highlightbackground=DEFAULT_BGCOLOR)
+        selectDir = Button(self, text="폴더 선택", command=self.openDlg)
         selectDir.grid(row = 0, column=2)
 
         passwdLabel = Label(self, text='password',bg=DEFAULT_BGCOLOR)
         passwdLabel.grid(row = 1, column=0)
 
-        passwd = Entry(self, highlightbackground=DEFAULT_BGCOLOR, bg='ghost white')
+        self.pwd = StringVar()
+
+        passwd = Entry(self,textvariable=self.pwd, bg='ghost white')
         passwd.grid(row = 1, column=1)
 
         self.chNmParam = BooleanVar()
@@ -39,15 +44,15 @@ class MainWindow(Frame):
         chNmOption.grid(row = 2, column=0)
 
         #0f4c81
-        unzipBtn = Button(self, text="압축 풀기", command=self.unzip, bg='#0f4c81', fg='white', bd=0, highlightthickness=0, highlightbackground=DEFAULT_BGCOLOR)
+        unzipBtn = Button(self, text="압축 풀기", command=self.unzip, bg='#0f4c81', fg='white')
         unzipBtn.grid(row = 3, column=0, columnspan=3)
 
         self.place(x = 40, y = 20)
 
     def centerWindow(self):
 
-        w = 450
-        h = 180
+        w = 380
+        h = 150
 
         sw = self.master.winfo_screenwidth()
         sh = self.master.winfo_screenheight()
@@ -73,14 +78,65 @@ class MainWindow(Frame):
 
     def fileScan(self):
         path = self.dirPath.get()
-        if self.dirPath.get():
-            fileList = []
-            stop = False
-            while stop:
-                os.listdir(path)
+        if path:
+            fileList = self.getFileList(path)
+            for zipFile in fileList:
+                # print(zipFile)
+                try:
+                    shutil.rmtree(TEMP_DIR)
+                except:
+                    pass
+                z = py7zr.SevenZipFile(zipFile, mode='r', password=self.pwd.get())
+                try:
+                    z.extractall(path=TEMP_DIR)#os.path.dirname(os.path.abspath(zipFile)))
+                    if self.chNmParam.get():
+                        # print('check!!')
+                        tempList = os.listdir(TEMP_DIR)
+                        for t in tempList:
+                            toFile = os.path.join(os.path.dirname(os.path.abspath(zipFile)),'.'.join(str(os.path.basename(zipFile)).split('.')[:-1]))
+                            # print(toFile)
+                            shutil.move(os.path.join(TEMP_DIR, t),toFile)
+                    else:
+                        print('non check!!')
+                        tempList = os.listdir(TEMP_DIR)
+                        for t in tempList:
+                            shutil.move(os.path.join(TEMP_DIR, t),os.path.dirname(os.path.abspath(zipFile)))
 
+                except py7zr.exceptions.Bad7zFile as e:
+                    messagebox.showerror("실패", str(e) + '\n\n' + '비밀번호를 확인해주세요.')
+                    return
+                    
+                except shutil.Error as e:
+                    messagebox.showerror("실패", str(e) + '\n\n' + '같은 파일이 존재합니다.')
+                    return
+                    
+                finally:
+                    try:
+                        shutil.rmtree(TEMP_DIR)
+                    except:
+                        pass
+                    
+            messagebox.showinfo("완료", '압축풀기가 완료되었습니다.')
         else :
-            dlg = messagebox.showerror("실패", "폴더 경로를 먼저 선택해주세요.")         
+            try:
+                shutil.rmtree(TEMP_DIR)
+            except:
+                pass
+            messagebox.showerror("실패", "폴더 경로를 먼저 선택해주세요.")         
+
+    def getFileList(self, dirPath):
+        resultList = []
+        if os.path.exists(dirPath):
+            subList = os.listdir(dirPath)
+            for f in subList:
+                fullPath = os.path.join(dirPath,f)
+                if os.path.isdir(fullPath):
+                    resultList.extend(self.getFileList(fullPath))
+                else :
+                    if str(f).endswith('.7z'):
+                        resultList.append(fullPath)
+
+        return resultList
 
 
     def unzip(self):
@@ -92,7 +148,7 @@ class MainWindow(Frame):
 def main():
     root = Tk()
     root.resizable(False, False)
-    root.configure(bg=DEFAULT_BGCOLOR, highlightbackground=DEFAULT_BGCOLOR)
+    root.configure(bg=DEFAULT_BGCOLOR)
     ex = MainWindow()
     root.mainloop()
 
