@@ -1,10 +1,12 @@
 from tkinter import *
 # from tkmacosx import Button
 from tkinter import Frame
+from tkinter.ttk import Progressbar
 from tkinter import filedialog, messagebox
 import os
 import py7zr
 import shutil
+import threading
 
 DEFAULT_BGCOLOR = "white"
 TEMP_DIR = os.path.join(os.getcwd(),'table')
@@ -47,6 +49,20 @@ class MainWindow(Frame):
         unzipBtn = Button(self, text="압축 풀기", command=self.unzip, bg='#0f4c81', fg='white')
         unzipBtn.grid(row = 3, column=0, columnspan=3)
 
+        self.progressVar = IntVar()
+        self.progressVar.set(0)
+        self.progress = Progressbar(self,orient=HORIZONTAL,length=250, mode='determinate',variable=self.progressVar)
+        self.progress.grid(row = 4, column=0, columnspan=2)
+
+        self.progressLabelVar = StringVar()
+        self.progressLabelVar.set("0/0")
+        self.progressLabal = Label(self, text="0/0", textvariable=self.progressLabelVar, bg=DEFAULT_BGCOLOR)
+        self.progressLabal.grid(row=4, column=2)
+
+        self.progress.grid_forget()
+        self.progressLabal.grid_forget()
+
+
         self.place(x = 40, y = 20)
 
     def centerWindow(self):
@@ -79,8 +95,16 @@ class MainWindow(Frame):
     def fileScan(self):
         path = self.dirPath.get()
         if path:
+            self.progress.grid(row = 4, column=0, columnspan=2)
+            self.progressLabal.grid(row=4, column=2)
+            i = 1
             fileList = self.getFileList(path)
+            self.progress.configure(maximum=len(fileList))
             for zipFile in fileList:
+                
+                self.progressLabelVar.set(str(i)+"/"+str(len(fileList)))
+                self.progressVar.set(i)
+                self.progress.update()
                 # print(zipFile)
                 try:
                     shutil.rmtree(TEMP_DIR)
@@ -113,16 +137,21 @@ class MainWindow(Frame):
                 finally:
                     try:
                         shutil.rmtree(TEMP_DIR)
+                        i+=1
                     except:
                         pass
                     
             messagebox.showinfo("완료", '압축풀기가 완료되었습니다.')
+            self.progress.grid_forget()
+            self.progressLabal.grid_forget()
         else :
             try:
                 shutil.rmtree(TEMP_DIR)
             except:
                 pass
-            messagebox.showerror("실패", "폴더 경로를 먼저 선택해주세요.")         
+            messagebox.showerror("실패", "폴더 경로를 먼저 선택해주세요.")   
+
+
 
     def getFileList(self, dirPath):
         resultList = []
@@ -142,8 +171,9 @@ class MainWindow(Frame):
     def unzip(self):
         print("click unzip")
         print(self.chNmParam.get())
-
-        self.fileScan()
+        thread = threading.Thread(target=self.fileScan)
+        # self.fileScan()
+        thread.start()
 
 def main():
     root = Tk()
