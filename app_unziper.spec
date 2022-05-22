@@ -4,7 +4,7 @@
 block_cipher = None
 
 
-a = Analysis(['app.py'],
+a = Analysis(['app_unziper.py'],
              pathex=['C:\\Users\\DELL\\PLAYGROUND\\hkdevstudio\\unziper'],
              binaries=[],
              datas=[],
