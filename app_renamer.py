@@ -28,7 +28,7 @@ class MainWindow(Frame):
         selectDir = Button(self, text="폴더 선택", command=self.openDlg)
         selectDir.grid(row = 0, column=2)
 
-        newExtLabel = Label(self, text='변경할 확장자명',bg=DEFAULT_BGCOLOR)
+        newExtLabel = Label(self, text=' 확장자명',bg=DEFAULT_BGCOLOR)
         newExtLabel.grid(row = 1, column=0)
 
         self.new_ext = StringVar()
@@ -97,12 +97,12 @@ class MainWindow(Frame):
                     
                     print("file_name : " , file_name)
                     print("ext : ", ext)
-                    new_ext_str = self.new_ext.get()
-                    if len(new_ext_str):
-                        if not new_ext_str.startswith('.'):
-                            new_ext_str = '.' + new_ext_str
-                        
-                    os.rename(file, file_name+new_ext_str)
+                    remove_ext_str = self.new_ext.get()
+                    if len(remove_ext_str):
+                        if not remove_ext_str.startswith('.'):
+                            remove_ext_str = '.' + remove_ext_str
+                    if ext.endswith(remove_ext_str):
+                        os.rename(file, file_name)
                     
                     
                 except Exception as e:
