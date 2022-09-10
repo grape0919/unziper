@@ -36,7 +36,7 @@ class MainWindow(Frame):
         new_ext_edit = Entry(self,textvariable=self.new_ext, bg='ghost white')
         new_ext_edit.grid(row = 1, column=1)
 
-        unzipBtn = Button(self, text="확장자 변경", command=self.rename, bg='#0f4c81', fg='white')
+        unzipBtn = Button(self, text="확장자 제거", command=self.rename, bg='#0f4c81', fg='white')
         unzipBtn.grid(row = 3, column=0, columnspan=3)
 
         self.progressVar = IntVar()
@@ -101,8 +101,10 @@ class MainWindow(Frame):
                     if len(remove_ext_str):
                         if not remove_ext_str.startswith('.'):
                             remove_ext_str = '.' + remove_ext_str
-                    if ext.endswith(remove_ext_str):
-                        os.rename(file, file_name)
+                    
+                        if ext.endswith(remove_ext_str):
+                            os.rename(file, file_name)
+                    
                     
                     
                 except Exception as e:
